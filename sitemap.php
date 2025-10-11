@@ -53,12 +53,12 @@ finally{}
 /*
  * CHECK THE SCRIPT CONFIG SETUP
  */
-Script::checkFile($config);
+Script::checkConfig($config);
 /*
  * CRAWLER
  */
 try{
-    Script::check($argv,['site','sitecache','sitedbcache','db','dbtest','dbmultitest','dbcache']);
+    Script::checkArg($argv,['site','sitecache','sitedbcache','db','dbtest','dbmultitest','dbcache']);
     $SitemapConfig=\Sitemap\Config::get();
     $SitemapConfig['SITE_URL']=$argv[1];
     $SitemapConfig['SAVE_DIR']= bin2hex(random_bytes(10)).DS;

@@ -14,7 +14,7 @@ class Script {
     ];
     private static ?string $hash='';
     private static ?array $run=[];
-    public static function check(array $argv=[], array $run=[]):void{
+    public static function checkArg(array $argv=[], array $run=[]):void{
         self::$argv=$argv;
         self::$errCode[1].=implode(PHP_EOL,$run);
         self::$run=$run;
@@ -36,7 +36,7 @@ class Script {
         $arg=mb_strtolower(trim(self::$argv[2]));
 		in_array($arg,self::$run)? "" : Throw New Exception(self::$hash.PHP_EOL."wrong task to execute - ".self::$argv[2].".".PHP_EOL.self::$errCode[1].PHP_EOL.self::$hash);
     }
-    public static function checkFile(\stdClass $config):void{
+    public static function checkConfig(\stdClass $config):void{
         try{
             $Log=\Logger::init();
             $file = new \File();
