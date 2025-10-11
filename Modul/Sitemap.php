@@ -195,6 +195,9 @@ class Sitemap {
     }
     public function upload():void{
 		$this->Log->log(__METHOD__."()",0);
+        /*
+            CHECK IS ACTIVE
+         */
         /* 
         * UPLOAD SITEMAP FILES TO REMOTE SERVER
         */
