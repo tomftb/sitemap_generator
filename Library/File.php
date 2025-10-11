@@ -7,7 +7,6 @@
 class File{
     private ?string $name;
     private $fh;
-    private ?string $dirPath='';
     public function __construct(){
         //print_r(php_uname());
         //print_r(PHP_OS)."\n";
@@ -74,90 +73,30 @@ class File{
         }
         return true;
     }
-    public function checkDir(string $dirname=''):bool{
-        //print __METHOD__."\n";
-        /*
-         * IN Linux first `/` is a root directory
-         */
-        $this->dirPath='';
-        //var_dump($dirname);
-        $dir=explode(DIRECTORY_SEPARATOR,$dirname);
-        $dirend=end($dir);
-        /* dir separator */
-        $ds='';
-       // $this->dirPath.=DIRECTORY_SEPARATOR.$dirname;
-        array_pop($dir);
-        //var_dump($dir);
-        //var_dump($dirend);
-        foreach($dir as $d){
-            //$this->dirPath.=$dirSeparator.trim($d);
-            if(!self::checkDirPath(trim($d),$ds)){
-                return false;
-            }
-            $ds=DIRECTORY_SEPARATOR;
+    public function basicCheckDir(?string $dirname=null):void{
+        if($dirname===null){
+            Throw New \Exception(__METHOD__." The given directory name is null!");
         }
-        //print "FINALLY DIR PATH - ".$this->dirPath."\n";
-        return self::checkDirPath(trim($dirend),$ds) ? true : false;
-    }
-    private function checkDirPath(string $dirname='', string $ds=''):bool{
-        //print __METHOD__."\n";
-        //print "dir name - `".$dirname."`\n";
-        //print "act dir path - `".$this->dirPath."`\n";
-        //print "act dir separator - ".$ds."\n";
-        if($dirname===''){
-            //print "... dir name is `empty` - return true\n";
-            return true;
+        $tmpDirPath=trim($dirname);
+        if($tmpDirPath===''){
+            Throw New \Exception(__METHOD__." The given directory name is an empty string!");
         }
-        $tmpDirPath=$this->dirPath.$ds.$dirname;//
-        //$tmpDirPath=".\Files\Sitemap";
-        //print "tmp dir path - ".$tmpDirPath."\n";
         if(!file_exists($tmpDirPath)){
-            //print "... tmp dir path `".$tmpDirPath."` not exists - return false\n";
-            return false;
+            Throw New \Exception(__METHOD__." The given directory `".$tmpDirPath."` does not exist!");
         }
-        //print "... tmp dir path `".$tmpDirPath."` exists - continue\n";
-        self::checkDirProperty($tmpDirPath);
-        //self::updateDirPath($dirname,$ds);
-        
-        //print "... tmp dir path `${tmpDirPath}` exists and is writeable - return true\n";
-        $this->dirPath.=$ds.$dirname;
-        return true;
-    }
-    private function checkDirProperty(string $tmpDirPath=''):void{
-        //print __METHOD__."\n";
-        //print "TMP DIR PATH - ".$tmpDirPath."\n";
         if(!is_dir($tmpDirPath)){
-            Throw New \Exception(__METHOD__." Directory - `".$tmpDirPath."` - not a dir!",0);
+            Throw New \Exception(__METHOD__." The specified path `".$tmpDirPath."` is not a directory!");
         }
-        if(!is_writable($tmpDirPath)){
-            Throw New \Exception(__METHOD__." Directory - `".$tmpDirPath."` - no write permission!",0);
+        if(!is_readable($tmpDirPath)){
+            Throw New \Exception(__METHOD__." The specified path `".$tmpDirPath."` is not readable!");
         }
-        //if(!is_executable($tmpDirPath)){
-        //    Throw New \Exception(__METHOD__." Directory - `".$tmpDirPath."` - no executable permission!",0);
-        //} 
-        /* TURN OF
-        if(!chdir($tmpDirPath)){
-            Throw New \Exception(__METHOD__." Directory - `".$tmpDirPath."` - cannot change directory!",0);
-        }
-         *
-         */
-        //print "TMP DIR PATH OK - continue\n";
     }
-    private function updateDirPath(string $dirname='', string $ds=''):bool{
-        if($dirname==='.'){
-            //print "... current dir `.` - do not change dir path - return true\n";
-            return true;
+    public function advancedCheckDir(?string $dirname=null):void{
+        self::basicCheckDir($dirname);
+        $tmpDirPath=trim($dirname);
+        if(!is_writable($tmpDirPath)){
+            Throw New \Exception(__METHOD__." The specified path `".$tmpDirPath."` is not writable!",0);
         }
-        if($dirname==='..'){
-            //print "... parent dir `..` - change to parent dir - return true\n";
-            $tmp=explode($ds,$this->dirPath);
-            array_pop($tmp);
-            $this->dirPath=implode($ds,$tmp);
-            //print "new dirpath - ".$this->dirPath."\n";
-            return true;
-        }
-        $this->dirPath.=$ds.$dirname;
-        return true;
     }
     public function checkFilename($filename):void{
         //print __METHOD__."\n";
@@ -227,9 +166,9 @@ class File{
             Throw New \Exception($e->getMessage(),0);
         }
     }
-    public function checkFile(string $fileName=''){
+    public function checkFile(string $fileName=''):void{
         if(!file_exists($fileName)){
-            Throw New \Exception(__METHOD__.' File - '.$fileName." - not exists!",0);
+            Throw New \Exception(__METHOD__." The specified path `".$fileName."` does not exist!",0);
         }
         self::isFile($fileName);
         self::isReadable($fileName);
