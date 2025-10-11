@@ -24,7 +24,9 @@ return [
         'user'=>'',
         'password'=>'',
         'workingdir'=>"",
-		'active'=>false
+		'active'=>false,
+        'connectionAttemptTimeout'=>5,
+        'connectAttempts'=>5
     ]
 ];
 ?>
@@ -42,9 +44,9 @@ return [
         'active'=>false
 	]
 ];
+?>
 ## EMAIL configuration template:
-
-<?php
+```<?php
 return[
     'SMTPAuth'=>true,               // enable SMTP authentication
     'SMTPSecure' => 'tls',              // sets the prefix to the servier
@@ -60,3 +62,5 @@ return[
     'sendAttemptsTimeout'=>5,
     'sendTo'=>''
 ];
+?>
+```
