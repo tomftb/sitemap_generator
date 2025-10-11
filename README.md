@@ -15,6 +15,7 @@ To run the script, follow the steps below:
 - Run the script by typing in Windows CMD: php -f sitemap.php URL TASK
 
 ## FTP configuration template:
+```
 <?php
 return [
     'upload'=>[
@@ -30,7 +31,9 @@ return [
     ]
 ];
 ?>
+```
 ## DATABASE configuration template:
+```
 <?php
 return [
 	'sites'=>[
@@ -45,8 +48,10 @@ return [
 	]
 ];
 ?>
+```
 ## EMAIL configuration template:
-```<?php
+```
+<?php
 return[
     'SMTPAuth'=>true,               // enable SMTP authentication
     'SMTPSecure' => 'tls',              // sets the prefix to the servier
