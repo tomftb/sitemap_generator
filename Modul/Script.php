@@ -9,8 +9,8 @@ class Script {
     //put your code here
     private static ?array $argv=[];
     private static ?array $errCode=[
-        '[arg 1]Please set URL.'.PHP_EOL,
-        '[arg 2]Please set task from:'.PHP_EOL,
+        '[arg 1]Please set the URL.'.PHP_EOL,
+        '[arg 2]Please choose the task from the list below:'.PHP_EOL,
     ];
     private static ?string $hash='';
     private static ?array $run=[];
