@@ -130,7 +130,12 @@ class Sitemap {
     public function runDb():void{
         //printf("%s\n","... ".__METHOD__."()");
 		$this->Log->log(__METHOD__."()",0);
-		return ;
+        /*
+            CHECK IS ACTIVE
+         */
+        if(!self::isActive($this->dbConfig['sites'])){
+            return;
+        }
         /*
         * Initialize Database
         */
@@ -198,8 +203,7 @@ class Sitemap {
         /*
             CHECK IS ACTIVE
          */
-
-        if(!self::isActive()){
+        if(!self::isActive($this->ftpConfig['upload'])){
             return;
         }
         /* 
@@ -238,28 +242,20 @@ class Sitemap {
         }
         //return $files;
     }
-    private function isActive():bool{
-        if(!array_key_exists('upload',$this->ftpConfig)){
-            $this->Log->log(__METHOD__."() FTP upload key is missing!",0);
+    private function isActive(array $config=[]):bool{
+        if(!array_key_exists('active',$config)){
+            $this->Log->log(__METHOD__."() `active` key is missing!",0);
             return false;
         }
-        if(!is_array($this->ftpConfig['upload'])){
-            $this->Log->log(__METHOD__."() FTP upload key is not an array!",0);
-            return false;
-        }
-        if(!array_key_exists('active',$this->ftpConfig['upload'])){
-            $this->Log->log(__METHOD__."() FTP upload['active'] key is missing!",0);
-            return false;
-        }
-        $type = gettype($this->ftpConfig['upload']['active']);
+        $type = gettype($config['active']);
         if($type!='boolean'){
-            $this->Log->log(__METHOD__."() FTP upload['active'] key is not boolean, it is ".$type."!",0);
+            $this->Log->log(__METHOD__."() `active` key is not boolean, it is `".$type."`!",0);
             return false;
         }
-        if($this->ftpConfig['upload']['active']){
+        if($config['active']){
             return true;
         }
-        $this->Log->log(__METHOD__."() FTP upload is not active, skipping.",0);
+        $this->Log->log(__METHOD__."() config is not active, skipping.",0);
         return false;
     }
 }
