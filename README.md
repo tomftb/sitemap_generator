@@ -57,5 +57,6 @@ return[
     'exception'=>true,
     'CharSet'=>'UTF-8',
     'sendAttempts'=>5,
-    'sendAttemptsTimeout'=>5
+    'sendAttemptsTimeout'=>5,
+    'sendTo'=>''
 ];
