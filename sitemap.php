@@ -121,7 +121,7 @@ finally{
  */
 try{
     $Email=\Email::init(require($config->{'file'}->{'email'}));
-    ($error!=='')? $Email->send($config->{'email_notify_address'},basename(__FILE__).' - the script execute failed',$error."<br/>".$warnings) : $Email->send($config->{'email_notify_address'},basename(__FILE__).' - the script was successful'.$overall_warning,'<p>Crawl site '.$argv[1].' execute in '.time()-$start.'s.</p><p>Execute `'.$argv[2].'` task.</p><p>'.$warnings."</p>");  
+    ($error!=='')? $Email->send(basename(__FILE__).' - the script execute failed',$error."<br/>".$warnings) : $Email->send(basename(__FILE__).' - the script was successful'.$overall_warning,'<p>Crawl site '.$argv[1].' execute in '.time()-$start.'s.</p><p>Execute `'.$argv[2].'` task.</p><p>'.$warnings."</p>");  
 	$Email->close();
 }
 catch (Throwable $t){
