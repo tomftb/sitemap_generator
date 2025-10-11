@@ -65,7 +65,14 @@ return[
     'CharSet'=>'UTF-8',
     'sendAttempts'=>5,
     'sendAttemptsTimeout'=>5,
-    'sendTo'=>''
+    'sendTo'=>'',
+    'SMTPOptions' => array (
+        'ssl' => array (
+            'verify_peer' => false,
+            'verify_peer_name' => false,
+            'allow_self_signed' => true
+        )
+    )
 ];
 ?>
 ```
