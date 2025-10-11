@@ -53,28 +53,12 @@ finally{}
 /*
  * CHECK THE SCRIPT CONFIG SETUP
  */
-try{
-    $file = new \File();
-    $file->basicCheckDir(APP_ROOT.DS.CFG_DIR);
-    foreach($config->{'file'} as $v){
-        $file->checkFile($v);
-    }
-}
-catch (Throwable $t){
-    printf("%s",$t->getMessage());
-    exit($Log->log($t->getMessage(),0));
-}
-catch (Exception $e){
-    printf("%s",$t->getMessage());
-    exit($Log->log($e->getMessage(),0));
-}
-finally{}
-
+Script::checkFile($config);
 /*
  * CRAWLER
  */
 try{
-    Script::check($argv,['site','sitecache','sitedbcache','db','dbtest','dbmultitest','dbcache']);   
+    Script::check($argv,['site','sitecache','sitedbcache','db','dbtest','dbmultitest','dbcache']);
     $SitemapConfig=\Sitemap\Config::get();
     $SitemapConfig['SITE_URL']=$argv[1];
     $SitemapConfig['SAVE_DIR']= bin2hex(random_bytes(10)).DS;

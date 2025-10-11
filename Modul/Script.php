@@ -30,14 +30,29 @@ class Script {
         }
     }
     private static function checkUrl():void{
-		//print(self::$hash.PHP_EOL.self::$argv[1]." is not a valid URL".PHP_EOL.self::$hash."\n");
 		filter_var(self::$argv[1], FILTER_VALIDATE_URL)? "" : Throw New Exception(self::$hash.PHP_EOL.self::$argv[1]." is not a valid URL".PHP_EOL.self::$hash);
-        //filter_var(self::$argv[1], FILTER_VALIDATE_URL)? print(self::$argv[1]." is a valid URL") : Throw New Exception(self::$hash.PHP_EOL.self::$argv[1]." is not a valid URL".PHP_EOL.self::$hash);
     }
     private static function checkRun():void{
         $arg=mb_strtolower(trim(self::$argv[2]));
-		//print(self::$hash.PHP_EOL."wrong task to execute - ".self::$argv[2].".".PHP_EOL.self::$errCode[1].PHP_EOL.self::$hash."\n");
 		in_array($arg,self::$run)? "" : Throw New Exception(self::$hash.PHP_EOL."wrong task to execute - ".self::$argv[2].".".PHP_EOL.self::$errCode[1].PHP_EOL.self::$hash);
-        //in_array($arg,self::$run)? print(PHP_EOL."execute ${arg} task.") : Throw New Exception(self::$hash.PHP_EOL."wrong task to execute - ".self::$argv[2].".".PHP_EOL.self::$errCode[1].PHP_EOL.self::$hash);
+    }
+    public static function checkFile(\stdClass $config):void{
+        try{
+            $Log=\Logger::init();
+            $file = new \File();
+            $file->basicCheckDir(APP_ROOT.DS.CFG_DIR);
+            foreach($config->{'file'} as $v){
+                $file->checkFile($v);
+            }
+        }
+        catch (Throwable $t){
+            printf("%s",$t->getMessage());
+            exit($Log->log($t->getMessage(),0));
+        }
+        catch (Exception $e){
+            printf("%s",$t->getMessage());
+            exit($Log->log($e->getMessage(),0));
+        }
+        finally{}
     }
 }
