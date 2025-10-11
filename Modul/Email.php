@@ -36,6 +36,7 @@ class Email {
         $this->Mailer->Username   = $this->config['Username'];
         $this->Mailer->Password   = $this->config['Password'];
         $this->Mailer->CharSet    = $this->config['CharSet'];
+        $this->Mailer->SMTPOptions    = $this->config['SMTPOptions'];
     }
     private function checkConfig(array $config=[]):void{
         //print(__METHOD__."\n");
