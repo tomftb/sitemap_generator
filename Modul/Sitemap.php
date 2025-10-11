@@ -38,7 +38,7 @@ class Sitemap {
     private function checkDir(){
 		$this->Log->log(__METHOD__."()\nDIR - ".$this->SitemapConfig['SAVE_LOC'],0);
         /* check directory create only if not exists */
-        $this->File->checkDir($this->SitemapConfig['SAVE_LOC']);
+        $this->File->advancedCheckDir($this->SitemapConfig['SAVE_LOC']);
          /* create only if not exists */
 		$this->Log->log(__METHOD__."()\nDIR - ".$this->SitemapConfig['SAVE_LOC'],0);
         $this->File->createDir($this->SitemapConfig['SAVE_LOC']);
