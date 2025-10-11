@@ -18,6 +18,8 @@ class FTP {
     {
         $this->executeLog=[$this,'nolog']; 
         $this->config=$config;
+        $this->connectAttempt=$config['connectAttempts'];
+        $this->connectAttemptTimeout=$config['connectionAttemptTimeout'];
         self::setLog($Log);
         self::log(__METHOD__);
     }
