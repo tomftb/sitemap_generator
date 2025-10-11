@@ -29,12 +29,12 @@ class Email {
     public function setConfig():void{
         //print(__METHOD__."\n");
         self::setIsSMTP($this->config['isSMTP']);
-	$this->Mailer->SMTPAuth   = $this->config['SMTPAuth'];               // enable SMTP authentication
-	$this->Mailer->SMTPSecure = $this->config['SMTPSecure'];              // sets the prefix to the servier
-	$this->Mailer->Host       = $this->config['Host'];
-	$this->Mailer->Port       = $this->config['Port'];
-	$this->Mailer->Username   = $this->config['Username'];
-	$this->Mailer->Password   = $this->config['Password'];
+        $this->Mailer->SMTPAuth   = $this->config['SMTPAuth'];               // enable SMTP authentication
+        $this->Mailer->SMTPSecure = $this->config['SMTPSecure'];              // sets the prefix to the servier
+        $this->Mailer->Host       = $this->config['Host'];
+        $this->Mailer->Port       = $this->config['Port'];
+        $this->Mailer->Username   = $this->config['Username'];
+        $this->Mailer->Password   = $this->config['Password'];
         $this->Mailer->CharSet    = $this->config['CharSet'];
     }
     private function checkConfig(array $config=[]):void{
@@ -53,17 +53,17 @@ class Email {
         $this->Mailer->SetFrom($from[0], $from[1]);
     }
     private function __clone(){ 
-	throw new Exception("Cannot clone a singleton.");
+	    throw new Exception("Cannot clone a singleton.");
     }
-    public function send(string|array $recipient='',string $subject='',string $message=''):void{
+    public function send(string $subject='',string $message=''):void{
         //print(__METHOD__."\n");
         //var_dump(self::$Email);
         $this->Mailer->clearReplyTos();
-		$this->Mailer->AddReplyTo($recipient, $subject);
-        $this->Mailer->AddAddress($recipient);
+		$this->Mailer->AddReplyTo($this->config['sendTo'], $subject);
+        $this->Mailer->AddAddress($this->config['sendTo']);
         $this->Mailer->Subject = $subject;
-	$this->Mailer->AltBody = '';
-	$this->Mailer->MsgHTML($message);
+	    $this->Mailer->AltBody = '';
+	    $this->Mailer->MsgHTML($message);
         self::sendAttempt();
     }
     public function setCharSet(string $charSet='UTF-8'){
