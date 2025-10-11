@@ -198,6 +198,10 @@ class Sitemap {
         /*
             CHECK IS ACTIVE
          */
+
+        if(!self::isActive()){
+            return;
+        }
         /* 
         * UPLOAD SITEMAP FILES TO REMOTE SERVER
         */
@@ -233,5 +237,29 @@ class Sitemap {
             //array_push($files,['src'=>$this->SitemapConfig['SAVE_LOC'].$this->SitemapConfig['SAVE_DIR'].$f,'dst'=>$f]);
         }
         //return $files;
+    }
+    private function isActive():bool{
+        if(!array_key_exists('upload',$this->ftpConfig)){
+            $this->Log->log(__METHOD__."() FTP upload key is missing!",0);
+            return false;
+        }
+        if(!is_array($this->ftpConfig['upload'])){
+            $this->Log->log(__METHOD__."() FTP upload key is not an array!",0);
+            return false;
+        }
+        if(!array_key_exists('active',$this->ftpConfig['upload'])){
+            $this->Log->log(__METHOD__."() FTP upload['active'] key is missing!",0);
+            return false;
+        }
+        $type = gettype($this->ftpConfig['upload']['active']);
+        if($type!='boolean'){
+            $this->Log->log(__METHOD__."() FTP upload['active'] key is not boolean, it is ".$type."!",0);
+            return false;
+        }
+        if($this->ftpConfig['upload']['active']){
+            return true;
+        }
+        $this->Log->log(__METHOD__."() FTP upload is not active, skipping.",0);
+        return false;
     }
 }
