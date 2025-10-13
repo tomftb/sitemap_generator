@@ -30,8 +30,10 @@ $config->{'file'}->{'email'} = APP_ROOT.DS.CFG_DIR.DS."email.php";
  * INIT
  */
 try{
-    require(APP_ROOT.DS."Library".DS."Autoload.php");
-    $Log=\Logger::init();
+    require(APP_ROOT.DS."Autoload.php");
+	echo __LINE__."\r\n";
+    $Log=Library\Logger::init();
+	echo __LINE__."\r\n";
     $Log->log(__FILE__,0);
     $start=time();
     $end=0;
@@ -39,9 +41,13 @@ try{
 	$warnings='';
 	$overall_warning='';
 	/*
+	 REQUIRE VENDOR AUTLOAD
+	 */
+	require(APP_ROOT.DS."vendor".DS."autoload.php");
+	/*
 	CHECK MAIN FUNCTION
 	*/
-	\Utilities::checkAllFunction(['ssh2_connect']);
+	Modul\Utilities::checkAllFunction(['ssh2_connect']);
 }
 catch (Throwable $t){ // Executed only in PHP 7, will not match in PHP 5
     exit(ERR_LINE.$t->getMessage().PHP_EOL);
@@ -53,13 +59,15 @@ finally{}
 /*
  * CHECK THE SCRIPT CONFIG SETUP
  */
-Script::checkConfig($config);
+echo __LINE__."\r\n";
+Modul\Script::checkConfig($config);
 /*
  * CRAWLER
  */
 try{
-    Script::checkArg($argv,['site','sitecache','sitedbcache','db','dbtest','dbmultitest','dbcache']);
-    $SitemapConfig=\Sitemap\Config::get();
+	echo __LINE__."\r\n";
+    Modul\Script::checkArg($argv,['site','sitecache','sitedbcache','db','dbtest','dbmultitest','dbcache']);
+    $SitemapConfig=Library\Sitemap\Config::get();
     $SitemapConfig['SITE_URL']=$argv[1];
     $SitemapConfig['SAVE_DIR']= bin2hex(random_bytes(10)).DS;
     //$config['URL_PER_SITEMAP']=50000;
@@ -67,22 +75,24 @@ try{
 	CHANGE FOR PROPER FILE LOCATON
 	*/
     $SitemapConfig['SAVE_LOC']= ".".DS."sitemap-generator".DS."Files".DS."Sitemap".DS;
-    $Sitemap = new \Sitemap($Log,new \SSH([],$Log),$SitemapConfig,require($config->{'file'}->{'ftp'}),require($config->{'file'}->{'database'}));
+	echo __LINE__."\r\n";
+    $Sitemap = new Modul\Sitemap($Log,new Library\SSH([],$Log),$SitemapConfig,require($config->{'file'}->{'ftp'}),require($config->{'file'}->{'database'}));
+	echo __LINE__."\r\n";
 	/*
 	READY links
 	*/
 	$Log->log(__FILE__."Sitemap->SitemapGenerator->addScanned() Curl",0);
-	$Sitemap->SitemapGenerator->addScanned(\Utilities::addPrefix($argv[1]."/",\Utilities::getJson(\Curl::getAttemptJsonBody($config->{'url_ready_links'}))));
-	$Log->log(__FILE__." Curl warnings: ".\Curl::getWarnings(),0);
-	$warnings.=\Curl::getHtmlWarnings();
-	\Curl::clearWarnings();
-	$overall_warning.=\Curl::getOverallWarning();
+	$Sitemap->SitemapGenerator->addScanned(Modul\Utilities::addPrefix($argv[1]."/",Modul\Utilities::getJson(Library\Curl::getAttemptJsonBody($config->{'url_ready_links'}))));
+	$Log->log(__FILE__." Curl warnings: ".Library\Curl::getWarnings(),0);
+	$warnings.=Library\Curl::getHtmlWarnings();
+	Library\Curl::clearWarnings();
+	$overall_warning.=Library\Curl::getOverallWarning();
 	/*
 	DATABASE LOAD WARNINGS
 	*/
-	$Log->log(__FILE__." Database warnings: ".\Sitemap::getWarnings(),0);
-	$warnings.= \Sitemap::getHtmlWarnings();
-	$overall_warning.=\Sitemap::getOverallWarning();
+	$Log->log(__FILE__." Database warnings: ".Modul\Sitemap::getWarnings(),0);
+	$warnings.= Modul\Sitemap::getHtmlWarnings();
+	$overall_warning.=Modul\Sitemap::getOverallWarning();
 	/*
 	dynamic execute script
 	*/
@@ -101,16 +111,16 @@ try{
     $Sitemap->removeReadyFiles();
     $Log->log("Script has been executed successfully.",0);
 }
-catch (Throwable $t){
+catch (\Throwable $t){
     $Log->log($t->getMessage(),0);
-	$warnings.=\Curl::getHtmlWarnings();
-	$warnings.=\Sitemap::getHtmlWarnings();
+	$warnings.=Library\Curl::getHtmlWarnings();
+	$warnings.=Modul\Sitemap::getHtmlWarnings();
     $error=$t->getMessage().PHP_EOL;
 }
-catch (Exception $e){
+catch (\Exception $e){
     $Log->log($e->getMessage(),0);
-	$warnings.=\Curl::getHtmlWarnings();
-	$warnings.=\Sitemap::getHtmlWarnings();
+	$warnings.=Library\Curl::getHtmlWarnings();
+	$warnings.=Modul\Sitemap::getHtmlWarnings();
     $error=$e->getMessage().PHP_EOL;
 }
 finally{
@@ -120,14 +130,14 @@ finally{
  * SEND notify
  */
 try{
-    $Email=\Email::init(require($config->{'file'}->{'email'}));
+    $Email=Modul\Email::init(require($config->{'file'}->{'email'}));
     ($error!=='')? $Email->send(basename(__FILE__).' - the script execute failed',$error."<br/>".$warnings) : $Email->send(basename(__FILE__).' - the script was successful'.$overall_warning,'<p>Crawl site '.$argv[1].' execute in '.time()-$start.'s.</p><p>Execute `'.$argv[2].'` task.</p><p>'.$warnings."</p>");  
 	$Email->close();
 }
-catch (Throwable $t){
+catch (\Throwable $t){
 	exit($Log->log($t->getMessage(),0));
 }
-catch (Exception $e){
+catch (\Exception $e){
 	exit($Log->log($e->getMessage(),0));
 }
 finally{

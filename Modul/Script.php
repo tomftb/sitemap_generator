@@ -3,8 +3,14 @@
 /**
  * Description of Script
  *
- * @author tomborc
+ * @author tomftb
  */
+namespace Modul;
+use \Exception;
+use \Throwable;
+use \Library\File;
+use \Library\Logger;
+
 class Script {
     //put your code here
     private static ?array $argv=[];
@@ -38,8 +44,8 @@ class Script {
     }
     public static function checkConfig(\stdClass $config):void{
         try{
-            $Log=\Logger::init();
-            $file = new \File();
+            $Log=Logger::init();
+            $file = new File();
             $file->basicCheckDir(APP_ROOT.DS.CFG_DIR);
             foreach($config->{'file'} as $v){
                 $file->checkFile($v);

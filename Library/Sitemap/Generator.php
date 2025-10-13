@@ -1,6 +1,9 @@
 <?php
 
-namespace Sitemap;
+namespace Library\Sitemap;
+use \Library\Curl;
+use \Library\Logger;
+use \Library\File;
 
 class Generator extends Crawl
 {
@@ -22,12 +25,12 @@ class Generator extends Crawl
         Throw New \Exception(__METHOD__." try to call not defined method - ${name}()");
         //print_r($arg);
     }
-    public function __construct(\Logger &$Log,$config=[]){
+    public function __construct(Logger &$Log,$config=[]){
         parent::__construct($config,$Log);
-        $this->Curl=new \Curl();
+        $this->Curl=new Curl();
         $this->Export = new Export($config,$Log);
         $this->Cache = new Cache($config['SAVE_LOC'].$config['SAVE_CACHE_FILENAME']);
-        $this->File = new \File();
+        $this->File = new File();
         $this->Log=$Log;
         $this->Log->log(__METHOD__,0);
         // Setup class variables using the config

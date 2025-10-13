@@ -1,10 +1,12 @@
 <?php
-namespace Sitemap;
-
+namespace Library\Sitemap;
+use \Library\File;
+use \Exception;
+use \Library\Logger;
 /**
  * Description of Cache
  *
- * @author tomborc
+ * @author tombor
  */
 class Cache {
     private ?object $Log;
@@ -13,13 +15,13 @@ class Cache {
     private ?array $data=[];
     function __call($name,$arg){
         $this->Log->log(__METHOD__." try to call not defined - ${name}()",0);
-        Throw New \Exception(__METHOD__." try to call not defined method - ${name}()");
+        Throw New Exception(__METHOD__." try to call not defined method - ${name}()");
     }
     public function __construct(string $fileName=''){
         //printf("%s\n","... ".__METHOD__."()");
-        $this->Log = \Logger::init();
+        $this->Log = Logger::init();
 		$this->Log->log(__METHOD__."()");
-        $this->File = new \File();
+        $this->File = new File();
         $this->fileName=$fileName;
     }
     public function setFileName(string $fileName=''){

@@ -1,4 +1,17 @@
 <?php
+namespace Modul;
+use \stdClass;
+use \Exception;
+use \Library\Sitemap\Cache;
+use \Library\Sitemap\Test;
+use \Library\Sitemap\Generator;
+use \Library\Logger;
+use \Library\File;
+use \Library\Curl;
+use \Library\FTP;
+use \Library\Database;
+use \Sites\Articles;
+use \Interfaces\Site;
 /**
  * Description of Sitemap
  *
@@ -14,20 +27,20 @@ class Sitemap {
     private ?array $dbConfig=[];
     private ?array $ftpConfig=[];
     private ?object $SitemapCache;
-    public function __construct(\Logger $Log,$FTP,array $SitemapConfig=[],array $ftpConfig=[],array $dbConfig=[]){
+    public function __construct(Logger $Log,$FTP,array $SitemapConfig=[],array $ftpConfig=[],array $dbConfig=[]){
         //printf("%s\n","... ".__METHOD__."()");
 		$this->Log=$Log;
 		$this->Log->log(__METHOD__."()",0);
         $this->Library = new stdClass();
         $this->SitemapConfig=$SitemapConfig;
-        $this->Page=new \Page($SitemapConfig['SITE_URL']);    
-        $this->SitemapCache = new \Sitemap\Cache();
+        $this->Page=new Page($SitemapConfig['SITE_URL']);    
+        $this->SitemapCache = new Cache();
         $this->SitemapCache->setFileName($this->SitemapConfig['SAVE_LOC'].$this->SitemapConfig['SAVE_CACHE_FILENAME']);
-        $this->SitemapTest=new \Sitemap\Test(new \Curl(),$Log);
+        $this->SitemapTest=new Test(new Curl(),$Log);
         $this->ftpConfig=$ftpConfig;
         $this->dbConfig=$dbConfig;
-        $this->SitemapGenerator=new \Sitemap\Generator($Log,$SitemapConfig);
-        $this->File=new \File();
+        $this->SitemapGenerator=new Generator($Log,$SitemapConfig);
+        $this->File=new File();
         $this->FTP=$FTP;
         self::checkDir();
     }
@@ -43,7 +56,7 @@ class Sitemap {
 		$this->Log->log(__METHOD__."()\nDIR - ".$this->SitemapConfig['SAVE_LOC'],0);
         $this->File->createDir($this->SitemapConfig['SAVE_LOC']);
     }
-    public function add(\Site $Site):void{
+    public function add(Site $Site):void{
         //printf("%s\n","... ".__METHOD__."()");
 		$this->Log->log(__METHOD__."()",0);
         $this->Page->add($Site->get());
@@ -137,57 +150,25 @@ class Sitemap {
             return;
         }
         /*
-        * Initialize Database
-        */
-        $dbSites=\Database::load($this->dbConfig['sites']);
-        /*
-        * Producer
-        */
-        $Producer=new \Producer($dbSites,new \URL());
-        /*
-         * Article
+         * Articles
          */
-        self::add(new \Article($dbSites,new \URL(),$Producer->getForProduct()));
-        /*
-         * Tires
-         */
-        self::add(new \Tire($dbSites,new \URL(),$Producer->getForProduct()));
-        /*
-         * Producer
-         */
-        self::add($Producer);
-         /*
-         * Promotion
-         */
-        self::add(new \Promotion($dbSites,new \URL()));
-         /*
-         * News
-         */
-        self::add(new \News($dbSites,new \URL()));
-         /*
-         * Traning
-         */
-        self::add(new \Training($dbSites,new \URL()));
-        /*
-         * Guide
-         */
-        self::add(new \Guide($dbSites,new \URL()));
-        /*
-         * Job (Work)
-         */
-        self::add(new \Job($dbSites,new \URL()));
-         /*
-         * Gallery
-         */
-        self::add(new \Gallery($dbSites,new \URL()));
-        /*
-         * QuarterlyNewsletter
-         */
-        self::add(new \QuarterlyNewsletter($dbSites,new \URL()));
-		/*
-		 * CLOSE
-		 */
-        $dbSites->close();
+        self::add(new \Sites\Articles($this->dbConfig['sites']));
+
+        $objects = [];
+        $files = glob(APP_ROOT . DS.'Sites'.DS.'*.php');
+        foreach ($files as $file) {
+
+            $class = 'Sites\\' . basename($file, '.php');
+            if (class_exists($class)) {
+                $refClass = new \ReflectionClass($class);
+                if ($refClass->implementsInterface(Site::class)) {
+                    //$objects[] = new $class($this->dbConfig['sites']);
+                    self::add(new $class($this->dbConfig['sites']));
+                    //self::add(new \Sites\Articles($this->dbConfig['sites']));
+                }
+            }
+        }
+
         $this->SitemapGenerator->addScanned($this->Page->getUrls());
     }
     public function runDbtest(){
@@ -219,13 +200,13 @@ class Sitemap {
         $this->FTP->disconnect();
     }
 	public static function getWarnings(){
-		return \Database::getWarnings();
+		return Database::getWarnings();
 	}
 	public static function getHtmlWarnings(){
-		return \Database::getHtmlWarnings();
+		return Database::getHtmlWarnings();
 	}
 	public static function getOverallWarning(){
-		return \Database::getOverallWarning();
+		return Database::getOverallWarning();
 	}
         /*
          * REMOVE FILES

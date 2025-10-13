@@ -1,4 +1,7 @@
 <?php
+namespace Library;
+use \Exception;
+use \Throwable;
 
 class Database {
     private static ?int $connectAttempt=5;
@@ -6,6 +9,13 @@ class Database {
 	private static ?array $warnings=[];
 	private static ?string $overall_warning='';
     
+	private function __construct() {
+		//printf("%s\n","... ".__METHOD__."()");
+	}
+	private function __destruct() {
+		//printf("%s\n","... ".__METHOD__."()");
+	}
+
 	public static function load(array $config=[]){
 		(bool) $established=false;
 		(int) $tmpConnectAttempt=self::$connectAttempt;

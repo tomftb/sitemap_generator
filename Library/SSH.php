@@ -1,10 +1,12 @@
 <?php
+namespace Library;
+use \Exception;
 /**
  * Description of Ssh
  *
  * @author tomborc
  */
-class SSH extends \FTP{
+class SSH extends FTP{
     private ?string $workingDir='';
     private $connectLinkFileDescription;
     public function __construct(array $config=[],$Log){//$Log = new stdClass()

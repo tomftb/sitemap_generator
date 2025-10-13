@@ -1,7 +1,8 @@
 <?php
 
-namespace Sitemap;
-
+namespace Library\Sitemap;
+use \Library\Curl;
+use \Library\Logger;
 /**
  * Description of Test
  *
@@ -12,7 +13,7 @@ class Test {
     private ?object $Curl;
     private ?int $max=50;
     private ?int $numberOfUrls=0;
-    public function __construct(\Curl $Curl,\Logger $Log,int $max=50){
+    public function __construct(Curl $Curl,Logger $Log,int $max=50){
         $this->Curl=$Curl;
         $this->Log=$Log;
         $this->max=$max;

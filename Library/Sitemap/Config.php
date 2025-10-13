@@ -1,5 +1,5 @@
 <?php
-namespace Sitemap;
+namespace Library\Sitemap;
 
 class Config
 {    

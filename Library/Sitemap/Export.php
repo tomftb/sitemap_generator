@@ -1,6 +1,8 @@
 <?php
 
-namespace Sitemap;
+namespace Library\Sitemap;
+use \Library\Logger;
+use \Library\File;
 
 class Export{
     private ?object $Log;
@@ -15,10 +17,10 @@ class Export{
         'name'=>'',
         'ext'=>'xml'
     ];        
-    public function __construct($conf,\Logger &$Log){
+    public function __construct($conf,Logger &$Log){
         try{
             $this->config = $conf;
-            $this->File = new \File();
+            $this->File = new File();
             $this->Log = $Log;
             $this->Log->log(__METHOD__,0);
             $this->fileNames=[];

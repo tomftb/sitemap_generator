@@ -10,6 +10,10 @@
  * 3 - all
  * ....
  */
+
+namespace Library;
+use \Exception;
+
 final class Logger{
     private static $logLink;
     private static $filehandle='';

@@ -1,4 +1,6 @@
 <?php
+namespace Modul;
+use \Exception;
 /**
  * Description of Utilities
  *

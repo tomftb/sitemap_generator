@@ -2,8 +2,12 @@
 /**
  * Description of Utilities
  *
- * @author tomborc
+ * @author tomftb
  */
+
+namespace Modul;
+use \Exception;
+
 class Utilities {
     //put your code here
     public static function getJson($data):array{

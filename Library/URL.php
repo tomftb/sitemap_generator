@@ -1,5 +1,5 @@
 <?php
-
+namespace Library;
 class URL {
     
     public static function getName(string $url=''):string

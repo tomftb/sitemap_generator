@@ -1,4 +1,6 @@
 <?php
+namespace Library;
+use \Exception;
 /**
  * Description of File
  *
@@ -8,11 +10,6 @@ class File{
     private ?string $name;
     private $fh;
     public function __construct(){
-        //print_r(php_uname());
-        //print_r(PHP_OS)."\n";
-        //print(DIRECTORY_SEPARATOR)."\n";
-        //print(PATH_SEPARATOR)."\n";
-        //die();
     }
     public function __destruct(){
       
@@ -24,34 +21,26 @@ class File{
         return $name;
     }
     public function createFile(string $filename='', string $data='', string $mode='w'):void{
-        //print __METHOD__."\n";
-        //print "FILENAME ${filename}\n";
         /*
          * CREATE A FILE IF NOT EXSITS
          * WRITE CONTENT TO A FILE
          * CLOSE FILE HANDLE
          */
-        //print(__METHOD__."\n");
-        // try{} catch(TypeError $te){Throw New Exception('File - wrong filename type! Not a string!',0);}
         try{
             self::open($filename,$mode);
             self::write($data);
             self::close();
         }
-        catch(\Exception $e){
-            //echo 'error aaaaaaaaaaaaaaaaaaaa';
-            //var_dump($e);
-            Throw New \Exception($e->getMessage(),0);
+        catch(\xception $e){
+
+            Throw New Exception($e->getMessage(),0);
         } 
     }
     public function createDir(string $dirname='', int $permissions=0777, bool $recursive=true ):bool{
-        //print __METHOD__."\n";
-        //print "... dirname - ".$dirname."\n";
         /*
          * Note:
             permissions is ignored on Windows.
          */
-        
         if($dirname===''){
             //print "... dir name is `empty` - return true\n";
             return true;
@@ -69,47 +58,44 @@ class File{
             return true;
         }
         if (!mkdir($dirname, $permissions, $recursive)) {
-            Throw New \Exception(__METHOD__.' Directory - '.$dirname." - failed to create!",0);
+            Throw New Exception(__METHOD__.' Directory - '.$dirname." - failed to create!",0);
         }
         return true;
     }
     public function basicCheckDir(?string $dirname=null):void{
         if($dirname===null){
-            Throw New \Exception(__METHOD__." The given directory name is null!");
+            Throw New Exception(__METHOD__." The given directory name is null!");
         }
         $tmpDirPath=trim($dirname);
         if($tmpDirPath===''){
-            Throw New \Exception(__METHOD__." The given directory name is an empty string!");
+            Throw New Exception(__METHOD__." The given directory name is an empty string!");
         }
         if(!file_exists($tmpDirPath)){
-            Throw New \Exception(__METHOD__." The given directory `".$tmpDirPath."` does not exist!");
+            Throw New Exception(__METHOD__." The given directory `".$tmpDirPath."` does not exist!");
         }
         if(!is_dir($tmpDirPath)){
-            Throw New \Exception(__METHOD__." The specified path `".$tmpDirPath."` is not a directory!");
+            Throw New Exception(__METHOD__." The specified path `".$tmpDirPath."` is not a directory!");
         }
         if(!is_readable($tmpDirPath)){
-            Throw New \Exception(__METHOD__." The specified path `".$tmpDirPath."` is not readable!");
+            Throw New Exception(__METHOD__." The specified path `".$tmpDirPath."` is not readable!");
         }
     }
     public function advancedCheckDir(?string $dirname=null):void{
         self::basicCheckDir($dirname);
         $tmpDirPath=trim($dirname);
         if(!is_writable($tmpDirPath)){
-            Throw New \Exception(__METHOD__." The specified path `".$tmpDirPath."` is not writable!",0);
+            Throw New Exception(__METHOD__." The specified path `".$tmpDirPath."` is not writable!",0);
         }
     }
     public function checkFilename($filename):void{
-        //print __METHOD__."\n";
-        //var_dump($filename);
         if(!is_string($filename)){
-            Throw New \Exception(__METHOD__.' Name - set proper type! Only string allowed!');
+            Throw New Exception(__METHOD__.' Name - set proper type! Only string allowed!');
         }
         if(trim($filename)===''){
-            Throw New \Exception(__METHOD__.' Name - set proper name! Cannot be empty!');
+            Throw New Exception(__METHOD__.' Name - set proper name! Cannot be empty!');
         }
     }
     public function open(string $filename='', string $mode='w'){
-        //print __METHOD__."\n";
         /*
         Modes:	Description:
         r	Open a file for read only. File pointer starts at the beginning of the file
@@ -126,22 +112,22 @@ class File{
             self::checkFilename($filename);
             $this->fh = fopen($filename, $mode);
             if(!$this->fh){
-                Throw New \Exception(__METHOD__.' failed to create!',0);
+                Throw New Exception(__METHOD__.' failed to create!',0);
             }
         }
-        catch(\Exception $e){
-            Throw New \Exception($e->getMessage(),0);
+        catch(Exception $e){
+            Throw New Exception($e->getMessage(),0);
         }
     }
     public function write(string $data=''){
         try{
             if(!is_resource($this->fh)){
-                Throw New \Exception(__METHOD__." Open a file!",0);
+                Throw New Exception(__METHOD__." Open a file!",0);
             }
             fwrite($this->fh,$data);
         }
-        catch(\Exception $e){
-            Throw New \Exception($e->getMessage(),0);
+        catch(Exception $e){
+            Throw New Exception($e->getMessage(),0);
         }
         /* ADD UTF8 BOM AT THE BEGINING A FILE TO SET UTF8 BOM */
         #fwrite($fh, pack("CCC", 0xef, 0xbb, 0xbf));
@@ -158,17 +144,17 @@ class File{
     public function close(){
         try{
             if(!is_resource($this->fh)){
-                Throw New \Exception(__METHOD__." Open a file or file already closed!",0);
+                Throw New Exception(__METHOD__." Open a file or file already closed!",0);
             }
             fclose($this->fh);
         }
-        catch(\Exception $e){
-            Throw New \Exception($e->getMessage(),0);
+        catch(Exception $e){
+            Throw New Exception($e->getMessage(),0);
         }
     }
     public function checkFile(string $fileName=''):void{
         if(!file_exists($fileName)){
-            Throw New \Exception(__METHOD__." The specified path `".$fileName."` does not exist!",0);
+            Throw New Exception(__METHOD__." The specified path `".$fileName."` does not exist!",0);
         }
         self::isFile($fileName);
         self::isReadable($fileName);
@@ -183,12 +169,12 @@ class File{
     }
     public function isFile($fileName){
         if(!is_file($fileName)){
-            Throw New \Exception(__METHOD__.' File - '.$fileName." - not a file!",0);
+            Throw New Exception(__METHOD__.' File - '.$fileName." - not a file!",0);
         }
     }
     public function isReadable($fileName){
         if(!is_readable($fileName)){
-            Throw New \Exception(__METHOD__.' File - '.$fileName." - no read permission!",0);
+            Throw New Exception(__METHOD__.' File - '.$fileName." - no read permission!",0);
         }
     }
     public function silentIsFile($fileName){

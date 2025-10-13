@@ -1,5 +1,7 @@
 <?php
-
+namespace Library;
+use \Exception;
+use \ReflectionMethod;
 /**
  * Description of Ftp
  *

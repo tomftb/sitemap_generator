@@ -1,7 +1,7 @@
 <?php
 
-namespace Sitemap;
-
+namespace Library\Sitemap;
+use \Library\Logger;
 /**
  * Description of Crawl
  *
@@ -12,7 +12,7 @@ class Crawl {
     private ?array $config=[];
     private ?object $Log;
     private ?string $site_url_base='';
-    public function __construct($config,\Logger &$Log){
+    public function __construct($config,Logger &$Log){
         $this->Log=$Log;
         $this->config=$config;
         $this->site_url_base = parse_url($this->config['SITE_URL'])['scheme'] . "://" . parse_url($this->config['SITE_URL'])['host'];
