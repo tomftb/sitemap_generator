@@ -150,25 +150,20 @@ class Sitemap {
             return;
         }
         /*
-         * Articles
+         * Dynamicaly load Sites
          */
-        self::add(new \Sites\Articles($this->dbConfig['sites']));
-
-        $objects = [];
         $files = glob(APP_ROOT . DS.'Sites'.DS.'*.php');
         foreach ($files as $file) {
-
             $class = 'Sites\\' . basename($file, '.php');
-            if (class_exists($class)) {
-                $refClass = new \ReflectionClass($class);
-                if ($refClass->implementsInterface(Site::class)) {
-                    //$objects[] = new $class($this->dbConfig['sites']);
-                    self::add(new $class($this->dbConfig['sites']));
-                    //self::add(new \Sites\Articles($this->dbConfig['sites']));
-                }
+            if (!class_exists($class)) {
+                continue;
             }
+            $refClass = new \ReflectionClass($class);
+            if (!$refClass->implementsInterface(Site::class)) {
+                continue;
+            }
+            self::add(new $class($this->dbConfig['sites']));
         }
-
         $this->SitemapGenerator->addScanned($this->Page->getUrls());
     }
     public function runDbtest(){
@@ -177,7 +172,7 @@ class Sitemap {
     }
     public function runDbmultitest(){
         self::runDb();
-        self::multiTest(100);//run
+        self::multiTest(100);
     }
     public function upload():void{
 		$this->Log->log(__METHOD__."()",0);
