@@ -7,8 +7,8 @@ use \Exception;
  * @author tomborc
  */
 class Curl{
-    private ?object $curl;
-    private ?object $multicurl;
+    private $curl;
+    private $multicurl;
     private ?array $multiHandle=[];
     private ?int $multiTimeout=0;
     private ?string $error='';
@@ -17,16 +17,19 @@ class Curl{
     private static ?int $connectAttemptTimeout=5;
 	private static ?array $warnings=[];// \Curl:: executed without warnings.//'\Curl:: executed without warnings.'
 	private static ?string $overall_warning='';
+    private Logger $logger;
 	
     public function __construct(){
-        //printf("%s\n",__METHOD__);
-        self::init();
+        $this->logger = Logger::init();
+        $this->logger->log(__METHOD__."() DEBUG: ".debug_backtrace()[1]['file']." ".debug_backtrace()[1]['class']." ".debug_backtrace()[1]['function']);
     }
     public function __destruct(){
-       self::close();
+        //$this->logger->log(__METHOD__."() DEBUG: ".debug_backtrace()[1]['file']." ".debug_backtrace()[1]['class']." ".debug_backtrace()[1]['function']);
+        $this->logger->log(__METHOD__."()");
+        self::close();
     }
     function __call($name,$arg){
-        Throw New \Exception(__METHOD__." try to call not defined method - ${name}()");
+        Throw New Exception(__METHOD__." try to call not defined method - ${name}()");
         //print_r($arg);
     }
     public function init(){
@@ -70,12 +73,29 @@ class Curl{
     public function getInstance(){
         return $this->curl;
     }
-    public function close(){
-        //printf("%s\n","... ".__METHOD__." close cURL instance()");
+    public function close():void{
+        //$this->logger->log(__METHOD__."() DEBUG: ".debug_backtrace()[1]['file']." ".debug_backtrace()[1]['class']." ".debug_backtrace()[1]['function']);
+        $this->logger->log(__METHOD__."()");
+        $type = gettype($this->curl);
+        if($type !== 'resource'){
+            return;
+        }
+        $resourceType = get_resource_type($this->curl);
+        if($resourceType !== 'curl'){
+            return;
+        }
         curl_close($this->curl);
     }
     public function closeMulti(){
-        //printf("%s\n","... ".__METHOD__." close cURL multi instance()");
+        $this->logger->log(__METHOD__."() DEBUG: ".debug_backtrace()[1]['file']." ".debug_backtrace()[1]['class']." ".debug_backtrace()[1]['function']);
+        $type = gettype($this->multicurl);
+        if($type !== 'resource'){
+            return;
+        }
+        $resourceType = get_resource_type($this->multicurl);
+        if($resourceType !== 'curl_multi'){
+            return;
+        }
         curl_multi_close($this->multicurl);
     }
     public function getRedirectUrl(){
@@ -113,29 +133,21 @@ class Curl{
         if ($status != CURLM_OK) {
             // Display error message
            // echo "ERROR!\n " . curl_multi_strerror($status);
-            Throw New Exception(__METHOD__."ERROR!\n " . curl_multi_strerror($status)); 
+            Throw New Exception(__METHOD__."() ERROR:\r\n " . curl_multi_strerror($status)); 
             /* TO DO - Throw Exception ? */
         }
     }
     public function checkResponse():void{
         //printf("%s\n","... ".__METHOD__." get info cURL multi instance()");
         foreach(array_keys($this->multiHandle) as $key){
-            //if(intval(curl_getinfo($ch[$key], CURLINFO_HTTP_CODE)['http_code'])!==200){
-              //  printf("[".$k."/".$psCount."]Error URL:\n%s\n",$p);
-               // printf("%s\n",$info['http_code']);
-              //  $this->Log->log("Error:\nHTTP CODE:".$info['http_code']."\nURL:\n".$p,0);
-           // }
-            //print_r(curl_getinfo($ch[$key]));
-            //print_r(curl_getinfo($this->multiHandle[$key]));
-            //print("[".curl_getinfo($this->multiHandle[$key], CURLINFO_HTTP_CODE)."] ");
-            //print("EFFECTIVE URL:".curl_getinfo($this->multiHandle[$key], CURLINFO_EFFECTIVE_URL)."\n");
-            if(curl_getinfo($this->multiHandle[$key], CURLINFO_HTTP_CODE)!==200){
-                $this->error.="\r".__METHOD__."\nHTTP CODE:".curl_getinfo($this->multiHandle[$key], CURLINFO_HTTP_CODE)."\nEFFECTIVE ERROR URL:".curl_getinfo($this->multiHandle[$key], CURLINFO_EFFECTIVE_URL);
-                //Throw New Exception("\r".__METHOD__."\nHTTP CODE:".curl_getinfo($this->multiHandle[$key], CURLINFO_HTTP_CODE)."\nEFFECTIVE ERROR URL:".curl_getinfo($this->multiHandle[$key], CURLINFO_EFFECTIVE_URL)); 
-                //print_r(curl_getinfo($ch[$key]));
-                //print("[".curl_getinfo($this->multiHandle[$key], CURLINFO_HTTP_CODE)."] ");
-                //print("EFFECTIVE URL:".curl_getinfo($this->multiHandle[$key], CURLINFO_EFFECTIVE_URL)."\n");
+            $responseInfo = curl_getinfo($this->multiHandle[$key]);
+           
+            if($responseInfo['http_code'] === 200){
+                self::removeHandle($this->multiHandle[$key]);
+                continue;
             }
+            // var_dump($responseInfo);
+            $this->error.="\r\n".__METHOD__."\n\nHTTP CODE:".strval($responseInfo['http_code'])."\r\nEFFECTIVE ERROR URL:".$responseInfo['url'];
             self::removeHandle($this->multiHandle[$key]);
         }
     }
@@ -214,7 +226,7 @@ class Curl{
     public static function checkError($Curl){
         
     }
-	private static function getCurl(string $url=''):object{
+	private static function getCurl(string $url=''){
 		//printf("%s\n",__METHOD__);
 		$port=((substr(mb_strtolower(trim($url)),0,5))==='https') ? 443 : 80;
 		$Curl = curl_init();
@@ -269,7 +281,7 @@ class Curl{
 	public static function clearWarnings(){
 		self::$warnings=[];
 	}
-	private static function setWarning(string|int $message=''):void{
+	private static function setWarning($message=''):void{
 		//self::$warnings.=self::$warningPrefix.$message;
 		
 		array_push(self::$warnings, $message);

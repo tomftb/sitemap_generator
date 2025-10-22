@@ -55,11 +55,9 @@ class SSH extends FTP{
     }
     public function disconnect(){
 		parent::log(__METHOD__."()");
-        //if(!ssh2_disconnect($this->connect)){
-          //  Throw New Exception('Couldn\'t close ssh2 connect! ssh2 connect already closed?');
-       // }
-		//unset($this->connect);
-		(!ssh2_disconnect($this->connect))? Throw New Exception('Couldn\'t close ssh2 connect! ssh2 connect already closed?') : "";//print(__METHOD__." successfully.\n")
+		if(!ssh2_disconnect($this->connect)){
+            Throw New Exception('Couldn\'t close ssh2 connect! ssh2 connect already closed?');
+        }
     }
     public function getFileContent(string $fileName=''){
         parent::log(__METHOD__."()");

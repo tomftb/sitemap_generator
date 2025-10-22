@@ -76,11 +76,10 @@ class FTP {
         self::connectAttempt($connect);
     }
     public function disconnect(){
-        //if(!ftp_close($this->connect)){
-          //  Throw New Exception ('Could\'n close ftp server connection! Maybe already closed?');
-        //}
-		//unset($this->connect);
-		(!ftp_close($this->connect)) ? Throw New Exception ('Could\'n close ftp server connection! Maybe already closed?') : "";//print(__METHOD__." successfully.\n"
+
+		if(!ftp_close($this->connect)){
+            Throw New Exception ('Could\'n close ftp server connection! Maybe already closed?');
+        }
     }
     public function readDir(){
         self::log(__METHOD__);

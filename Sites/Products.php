@@ -1,6 +1,6 @@
 <?php
 /**
- * Description of articles
+ * Description of Products
  *
  * @author tomborc
  */
@@ -8,42 +8,28 @@
 namespace Sites;
 use \Interfaces\Site;
 use \Library\Database;
-use \Library\URL;
 use \Library\Logger;
 
-class Articles implements Site {
+class Products implements Site {
     
     private ?array $data=[];
     private ?string $execute='setData';
     private ?array $prefix=[
         'pl'=>[
-            'prefix'=>'/pl/article/'
-            ,'column'=>'name'
+            'prefix'=>'/calculations/products?id_calc='
+            ,'column'=>'id'
             ],
-        'en'=>[
-            'prefix'=>'/en/article/'
-            ,'column'=>'nameEN'
-            ]
         ];
-    private ?object $URL;
     private ?object $db;
     public function __construct(array $dbConfig=[]) {
         $this->db=Database::load($dbConfig);
-        $this->URL=new URL();
         $this->Logger=Logger::init();
         $this->Logger->log(__METHOD__."()",0);
     }
     private function setData(){
         $this->Logger->log(__METHOD__."()",0);
-        $result = $this->db->query("SELECT "
-         . "`a`.`id`"
-         . ",`a`.`name`"
-         . ",`a`.`nameEN`"
-         . "FROM "
-         . "`articles` as `a` "
-         . "WHERE "
-         . " 1;"
-         ,MYSQLI_USE_RESULT);
+        //$result = $this->db->query("SELECT `p`.`id` FROM `plasticonapp_calculations` as `p` WHERE 1 ORDER BY `p`.`id` ASC LIMIT 0,1000",MYSQLI_USE_RESULT);
+        $result = $this->db->query("SELECT `p`.`id` FROM `plasticonapp_calculations` as `p` WHERE 1 ORDER BY `p`.`id` ASC",MYSQLI_USE_RESULT);
         
         if(empty($result)){
             $this->Logger->log(__METHOD__."() ERROR - wrong result");
@@ -57,14 +43,16 @@ class Articles implements Site {
         return $this->data;
     }
     public function get():array{
+        $this->Logger->log(__METHOD__."()",0);
         return self::{$this->execute}();
     }
     private function returnData(){
+        $this->Logger->log(__METHOD__."()",0);
         return $this->data;
     }
     private function setPosition(object $row):void{        
         foreach($this->prefix as $p){
-            $this->data[]=$p['prefix'].$this->URL::getName($row->{$p['column']})."/".$row->{'id'};
+            $this->data[]=$p['prefix'].$row->{'id'};
         }
     }
 }

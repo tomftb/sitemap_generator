@@ -10,6 +10,7 @@ use \Library\File;
 use \Library\Curl;
 use \Library\FTP;
 use \Library\Database;
+use \Library\Config;
 use \Sites\Articles;
 use \Interfaces\Site;
 /**
@@ -33,7 +34,7 @@ class Sitemap {
 		$this->Log->log(__METHOD__."()",0);
         $this->Library = new stdClass();
         $this->SitemapConfig=$SitemapConfig;
-        $this->Page=new Page($SitemapConfig['SITE_URL']);    
+        $this->Page=new Page($SitemapConfig['SITE_DOMAIN']);    
         $this->SitemapCache = new Cache();
         $this->SitemapCache->setFileName($this->SitemapConfig['SAVE_LOC'].$this->SitemapConfig['SAVE_CACHE_FILENAME']);
         $this->SitemapTest=new Test(new Curl(),$Log);
@@ -146,7 +147,7 @@ class Sitemap {
         /*
             CHECK IS ACTIVE
          */
-        if(!self::isActive($this->dbConfig['sites'])){
+        if(!Config::isActive($this->dbConfig['sites'])){
             return;
         }
         /*
@@ -172,14 +173,14 @@ class Sitemap {
     }
     public function runDbmultitest(){
         self::runDb();
-        self::multiTest(100);
+        self::multiTest($this->SitemapConfig['MULTITEST_PACKAGE_SIZE']);
     }
     public function upload():void{
 		$this->Log->log(__METHOD__."()",0);
         /*
             CHECK IS ACTIVE
          */
-        if(!self::isActive($this->ftpConfig['upload'])){
+        if(!Config::isActive($this->ftpConfig['upload'])){
             return;
         }
         /* 
@@ -218,20 +219,9 @@ class Sitemap {
         }
         //return $files;
     }
-    private function isActive(array $config=[]):bool{
-        if(!array_key_exists('active',$config)){
-            $this->Log->log(__METHOD__."() `active` key is missing!",0);
-            return false;
-        }
-        $type = gettype($config['active']);
-        if($type!='boolean'){
-            $this->Log->log(__METHOD__."() `active` key is not boolean, it is `".$type."`!",0);
-            return false;
-        }
-        if($config['active']){
-            return true;
-        }
-        $this->Log->log(__METHOD__."() config is not active, skipping.",0);
-        return false;
+
+    public function runMultiSite():void{
+        $this->Log->log(__METHOD__."()",0);
+        $this->SitemapGenerator->multiGenerateSitemap();
     }
 }

@@ -13,6 +13,7 @@ To run the script, follow the steps below:
 - create and set the database configuration file ./cfg/database.php;
 - create and set the email configuration file ./cfg/email.php;
 - Run the script by typing in Windows CMD: php -f sitemap.php URL TASK
+- Run the script with & by typing in Windows CMD: php -f "sitemap.php?a=b&c=d" URL TASK
 
 ## FTP configuration template:
 ```
@@ -27,7 +28,8 @@ return [
         'workingdir'=>"",
 		'active'=>false,
         'connectionAttemptTimeout'=>5,
-        'connectAttempts'=>5
+        'connectAttempts'=>5,
+        'type'=>'ftp'
     ]
 ];
 ?>
@@ -44,7 +46,8 @@ return [
 		'schema'=>'',
 		'charset'=>'utf8',
 		'collation'=>'utf8_polish_ci',
-        'active'=>false
+        'active'=>false,
+        'type'=>'database'
 	]
 ];
 ?>
@@ -66,13 +69,14 @@ return[
     'sendAttempts'=>5,
     'sendAttemptsTimeout'=>5,
     'sendTo'=>'',
-    'SMTPOptions' => array (
-        'ssl' => array (
+    'SMTPOptions' => [
+        'ssl' => [
             'verify_peer' => false,
             'verify_peer_name' => false,
             'allow_self_signed' => true
-        )
-    )
+        ]
+    ],
+    'type'=>'email'
 ];
 ?>
 ```

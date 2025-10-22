@@ -20,21 +20,30 @@ final class Logger{
     private static $logName='';
     private static $dir="log";
 	private $nLvl=0;
+    private string $instance='';
     //private static $dir=APP_ROOT."/log"; not working on 5.2
     
-    private function __construct(string $from=''){
+    private function __construct(?string $from=null,?string $instance=null){
         try{
             self::checkConst('APP_ROOT');
             self::checkConst('LOG_LVL');
             self::setDir();
             self::setLogName();
-            self::open(); 
-            self::log('Logger run in => '.$from,0);
+            self::open();
+            self::setInstance($instance);
+            self::writeFrom($from);
+           
         }
         catch(\Exception $e){
             //Throw New Exception ($e->getMessage(),0);
             die($e->getMessage());
         }
+    }
+    private function writeFrom(?string $from=null):void{
+        if(is_null($from)){
+            return;
+        }
+        self::log(__METHOD__.'() load from => '.$from,0);
     }
     public function __call($name,$arg){
         throw new Exception(__CLASS__."__call() Exception.");
@@ -53,15 +62,15 @@ final class Logger{
             Throw New Exception(__CLASS__.' Please define '.$const.' constant!');
         }
     }
-    public static function init($from=''){
+    public static function init(?string $from=null,?string $instance=null):Logger{
         /* CHECK AND INITIALISE Logger (Singleton) CLASS */
-	if(!isset(self::$logLink)){
-            /* INITIALISED NEW OBJECT */
-            self::$logLink=new Logger($from);
-	}
-	// ALREADY INITIALISED
-	/* self::log(0,'Logger already initialised => init from => '.$from,__METHOD__); */
-	return self::$logLink;
+        if(!isset(self::$logLink)){
+                /* INITIALISED NEW OBJECT */
+                self::$logLink=new Logger($from,$instance);
+        }
+	    // ALREADY INITIALISED
+	    /* self::log(0,'Logger already initialised => init from => '.$from,__METHOD__); */
+	    return self::$logLink;
     }
     public function log($d,$l=0){
         /*
@@ -146,7 +155,17 @@ final class Logger{
     }
     private function write($d,$l){
         if(LOG_LVL>=$l){
-            fwrite(self::$filehandle, "[".date("Y.m.d H:i:s")."]".$d.PHP_EOL);
+            fwrite(self::$filehandle, "[".date("Y.m.d H:i:s")."]".$this->instance.$d.PHP_EOL);
         }
+    }
+    private function setInstance(?string $instance=null):void{
+        if(is_null($instance)){
+            return;
+        }
+        $tmpInstance=trim($instance);
+        if($tmpInstance === ''){
+            Throw new Exception("EMPTY INSTANCE");
+        }
+        $this->instance = "[instance_".$tmpInstance."]";
     }
 }

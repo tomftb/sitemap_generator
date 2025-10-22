@@ -7,18 +7,14 @@ define ('DS',DIRECTORY_SEPARATOR);
 /*
  * SET THE SCRIPT ROOT DIRECTORY
  */
-if(substr(filter_input(INPUT_SERVER,"DOCUMENT_ROOT"),0,-7)===''){
-    define('APP_ROOT',__DIR__);
-}
-else{
-    define ('APP_ROOT',substr(filter_input(INPUT_SERVER,"DOCUMENT_ROOT"),0,-7));
-}
+define('APP_ROOT',__DIR__);
 /*
 	THE CONFIGURATON
 */
 $config = new \stdClass();
 $config->{'url_ready_links'} = "HTTPS:://MY_COMPANY.com.pl/api/ready-links";
 $config->{'email_notify_address'} = "NOTIFY_ADDRESS@MY_COMPANY.com.pl";
+$config->{'vendor_autoload'} = APP_ROOT.DS."vendor".DS."autoload.php";
 /*
 	THE CONFIGURATON REQUIRED FILES
 */
@@ -27,14 +23,17 @@ $config->{'file'}->{'ftp'} = APP_ROOT.DS.CFG_DIR.DS."ftp.php";
 $config->{'file'}->{'database'} = APP_ROOT.DS.CFG_DIR.DS."database.php";
 $config->{'file'}->{'email'} = APP_ROOT.DS.CFG_DIR.DS."email.php";
 /*
+	THE CONFIGURATION AVAILABLE TASK LIST
+*/
+$config->{'task_list'} = ['site','sitecache','sitedbcache','multisite','db','dbtest','dbmultitest','dbcache'];
+/*
  * INIT
  */
 try{
-    require(APP_ROOT.DS."Autoload.php");
-	echo __LINE__."\r\n";
-    $Log=Library\Logger::init();
-	echo __LINE__."\r\n";
+    require(__DIR__.DS."Autoload.php");
+    $Log=Library\Logger::init(null,uniqid());
     $Log->log(__FILE__,0);
+	$file = new \Library\File();
     $start=time();
     $end=0;
     $error='';
@@ -43,7 +42,8 @@ try{
 	/*
 	 REQUIRE VENDOR AUTLOAD
 	 */
-	require(APP_ROOT.DS."vendor".DS."autoload.php");
+	$file->checkFile($config->{'vendor_autoload'});
+	require($config->{'vendor_autoload'});
 	/*
 	CHECK MAIN FUNCTION
 	*/
@@ -59,30 +59,26 @@ finally{}
 /*
  * CHECK THE SCRIPT CONFIG SETUP
  */
-echo __LINE__."\r\n";
 Modul\Script::checkConfig($config);
 /*
  * CRAWLER
  */
 try{
-	echo __LINE__."\r\n";
-    Modul\Script::checkArg($argv,['site','sitecache','sitedbcache','db','dbtest','dbmultitest','dbcache']);
+    Modul\Script::checkArg($argv,$argc,$config->{'task_list'});
     $SitemapConfig=Library\Sitemap\Config::get();
-    $SitemapConfig['SITE_URL']=$argv[1];
-    $SitemapConfig['SAVE_DIR']= bin2hex(random_bytes(10)).DS;
-    //$config['URL_PER_SITEMAP']=50000;
-	/* 
-	CHANGE FOR PROPER FILE LOCATON
+	/*
+	CHECK SAVE DIRECTORY
 	*/
-    $SitemapConfig['SAVE_LOC']= ".".DS."sitemap-generator".DS."Files".DS."Sitemap".DS;
-	echo __LINE__."\r\n";
+	$file->basicCheckDir($SitemapConfig['SAVE_LOC']);
+    $SitemapConfig['SITE_URL']=Modul\Script::getUrl();
+	$SitemapConfig['SITE_DOMAIN']=Modul\Script::getDomain();
+    $SitemapConfig['SAVE_DIR']= bin2hex(random_bytes(10)).DS;
     $Sitemap = new Modul\Sitemap($Log,new Library\SSH([],$Log),$SitemapConfig,require($config->{'file'}->{'ftp'}),require($config->{'file'}->{'database'}));
-	echo __LINE__."\r\n";
 	/*
 	READY links
 	*/
 	$Log->log(__FILE__."Sitemap->SitemapGenerator->addScanned() Curl",0);
-	$Sitemap->SitemapGenerator->addScanned(Modul\Utilities::addPrefix($argv[1]."/",Modul\Utilities::getJson(Library\Curl::getAttemptJsonBody($config->{'url_ready_links'}))));
+	//$Sitemap->SitemapGenerator->addScanned(Modul\Utilities::addPrefix($argv[1]."/",Modul\Utilities::getJson(Library\Curl::getAttemptJsonBody($config->{'url_ready_links'}))));
 	$Log->log(__FILE__." Curl warnings: ".Library\Curl::getWarnings(),0);
 	$warnings.=Library\Curl::getHtmlWarnings();
 	Library\Curl::clearWarnings();
@@ -124,14 +120,16 @@ catch (\Exception $e){
     $error=$e->getMessage().PHP_EOL;
 }
 finally{
-    $Log->log(__FILE__." script crawler page finished at ".time()-$start."s.",0);
+	$end = time() - $start;
+    $Log->log(__FILE__." script crawler page finished at ".strval($end)."s.",0);
 }
 /*
  * SEND notify
  */
 try{
-    $Email=Modul\Email::init(require($config->{'file'}->{'email'}));
-    ($error!=='')? $Email->send(basename(__FILE__).' - the script execute failed',$error."<br/>".$warnings) : $Email->send(basename(__FILE__).' - the script was successful'.$overall_warning,'<p>Crawl site '.$argv[1].' execute in '.time()-$start.'s.</p><p>Execute `'.$argv[2].'` task.</p><p>'.$warnings."</p>");  
+	$Email=Modul\Email::init(require($config->{'file'}->{'email'}));
+	$end = time() - $start;
+	($error!=='')? $Email->send(basename(__FILE__).' - the script execute failed',$error."<br/>".$warnings) : $Email->send(basename(__FILE__).' - the script was successful'.$overall_warning,'<p>Crawl site '.$argv[1].' execute in '.strval($end).'s.</p><p>Execute `'.$argv[2].'` task.</p><p>'.$warnings."</p>");  
 	$Email->close();
 }
 catch (\Throwable $t){
@@ -141,5 +139,6 @@ catch (\Exception $e){
 	exit($Log->log($e->getMessage(),0));
 }
 finally{
-    exit($Log->log(__FILE__." script ends at ".time()-$start."s.",0));
+	$end = time() - $start;
+    exit($Log->log(__FILE__." script ends at ".strval($end)."s.",0));
 }

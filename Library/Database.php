@@ -63,7 +63,7 @@ class Database {
 		}
 		return $tmp;
 	}
-	private static function setWarning(string|int $message=''):void{
+	private static function setWarning($message=''):void{
 		array_push(self::$warnings, $message);
 		self::$overall_warning=' - Database load executed with warnings! ';
 	}

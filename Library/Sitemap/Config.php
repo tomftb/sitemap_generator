@@ -5,7 +5,7 @@ class Config
 {    
  public static function get():array
  {
-  return array(
+  return [
   // Site to crawl and create a sitemap for.
   // <Syntax> https://www.your-domain-name.com/ or http://www.your-domain-name.com/
   "SITE_URL" => "http://tborczynski.noip.pl",
@@ -58,15 +58,23 @@ class Config
   *  50MB (52,428,800 bytes) 
   */
   "SITEMAP_SIZE"=> 52428800,
-  /*
-  * MAX URL LENGTH IN CHAR
-  */
-  "URL_LENGTH"=>2047,
-  /*
-  * CALCULATE CHECKSUM FOR EACH SITEMAP FILE
-  */   
-  "ENABLE_CHECKSUM"=>false
-  );// END CONFIG ARRAY
- }
+    /*
+     * MAX URL LENGTH IN CHAR
+     */
+    "URL_LENGTH"=>2047,
+    /*
+     * CALCULATE CHECKSUM FOR EACH SITEMAP FILE
+     */   
+    "ENABLE_CHECKSUM"=>false,
+    /*
+        the optional URL for the hard-coded site links
+    */
+    "SITE_DOMAIN" => "http://tborczynski.noip.pl",
+    /*
+        SIZE OF PACKAGE - ONLY USED FOR MULTITEST
+    */
+    "MULTITEST_PACKAGE_SIZE" => 100,
+];// END CONFIG ARRAY
+}
 }
 
