@@ -12,8 +12,27 @@ To run the script, follow the steps below:
 - create and set the ftp configuration file ./cfg/ftp.php;
 - create and set the database configuration file ./cfg/database.php;
 - create and set the email configuration file ./cfg/email.php;
-- Run the script by typing in Windows CMD: php -f sitemap.php URL TASK
-- Run the script with & by typing in Windows CMD: php -f "sitemap.php?a=b&c=d" URL TASK
+- Run the script by typing in Windows CMD: php -f sitemap.php URL TASK OPTIONAL_DOMAIN (FOR DATABASE LINKS)
+- Run the script with & by typing in Windows CMD: php -f "sitemap.php?a=b&c=d" URL TASK OPTIONAL_DOMAIN (FOR DATABASE LINKS)
+
+## Windows CMD
+
+```bash
+  php -f sitemap.php
+  ##################################################
+  [arg 1]Please set the URL.
+  [arg 2]Please choose the task from the list below:
+  site
+  sitecache
+  sitedbcache
+  multisite
+  db
+  dbtest
+  dbmultitest
+  dbcache
+  [arg 3][optional]Please provide the domain name:
+  ##################################################
+```
 
 ## FTP configuration template:
 ```
@@ -76,7 +95,8 @@ return[
             'allow_self_signed' => true
         ]
     ],
-    'type'=>'email'
+    'type'=>'email',
+    'active'=>false
 ];
 ?>
 ```
